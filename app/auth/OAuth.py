@@ -17,5 +17,5 @@ def create_token(data: dict):
 
     return jwt.encode(to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
 
-def verify_token(token, user_credentials):
-    jwt.decode(access_token=token, algorithms=ALGORITHM, key=SECRET_KEY)
+def verify_token(token: str, credentials_exception):
+    jwt.decode(token=token, algorithms=ALGORITHM, key=SECRET_KEY)
