@@ -1,15 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm.session import Session
-
 from app.schemas import models, schemas
 from app.utils import utils
 from app.utils.database import get_db
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm.session import Session
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/")
-def get_users(db: Session = Depends(get_db)):  # noqa: B008
+@router.get("/", response_model=list[schemas.UserResponse])
+def get_users(db: Session = Depends(get_db)):
     users = db.query(models.UserCreate).all()
     if not users:
         raise HTTPException(
@@ -19,7 +18,7 @@ def get_users(db: Session = Depends(get_db)):  # noqa: B008
 
 
 @router.get("/{id}", response_model=schemas.UserResponse)
-def get_user(id: int, db: Session = Depends(get_db)):  # noqa: B008
+def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(models.UserCreate).filter(models.UserCreate.id == id).first()
     if not user:
         raise HTTPException(status_code=404, detail=f"No user with id {id} found")
@@ -27,7 +26,7 @@ def get_user(id: int, db: Session = Depends(get_db)):  # noqa: B008
 
 
 @router.post("/", status_code=201, response_model=schemas.UserResponse)
-def create_user(user_credentials: schemas.UserCreate, db: Session = Depends(get_db)):  # noqa: B008
+def create_user(user_credentials: schemas.UserCreate, db: Session = Depends(get_db)):
     user_credentials.password = utils.hash(user_credentials.password)
     new_user = models.UserCreate(**user_credentials.model_dump())
     db.add(new_user)
@@ -40,7 +39,7 @@ def create_user(user_credentials: schemas.UserCreate, db: Session = Depends(get_
 def update_user(
     user_credentials: schemas.UserCreate,
     id: int,
-    db: Session = Depends(get_db),  # noqa: B008
+    db: Session = Depends(get_db),
 ):
     user = db.query(models.UserCreate).filter(models.UserCreate.id == id)
     user_credentials.password = utils.hash(user_credentials.password)
@@ -54,7 +53,7 @@ def update_user(
 
 
 @router.delete("/{id}", status_code=204)
-def delete_user(id: int, db: Session = Depends(get_db)):  # noqa: B008
+def delete_user(id: int, db: Session = Depends(get_db)):
     user = db.query(models.UserCreate).filter(models.UserCreate.id == id)
     if not user.first():
         raise HTTPException(status_code=404, detail="User not found")
