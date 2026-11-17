@@ -1,0 +1,7 @@
+fastapi==0.142.2
+sqlalchemy==2.0.52
+pydantic==2.13.5
+bcrypt==5.0.0
+python-jose[cryptography]==3.5.0
+python-dotenv==1.0.1
+uvicorn==0.34.0

@@ -17,15 +17,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
 def create_token(data: dict):
     to_encode = data.copy()
-    expiration = datetime.now() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
+    expiration = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRE_MINUTES)
     to_encode.update({"exp": expiration})
 
     return jwt.encode(to_encode, key=SECRET_KEY, algorithm=ALGORITHM)
 
 def verify_token(token: str, credentials_exception):
     try:
-        payload = jwt.decode(token=token, algorithms=ALGORITHM, key=SECRET_KEY)
-        user_id = payload.get("user_id")
+        payload = jwt.decode(token=token, algorithms=[ALGORITHM], key=SECRET_KEY)
+        user_id = str(payload.get("user_id"))
         if not user_id:
             raise credentials_exception
         token_data = schemas.TokenData(id=user_id)

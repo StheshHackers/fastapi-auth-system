@@ -1,3 +1,4 @@
+from app.auth import oauth2
 from app.schemas import models, schemas
 from app.utils import utils
 from app.utils.database import get_db
@@ -8,7 +9,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/", response_model=list[schemas.UserResponse])
-def get_users(db: Session = Depends(get_db)):
+def get_users(db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     users = db.query(models.UserCreate).all()
     if not users:
         raise HTTPException(
